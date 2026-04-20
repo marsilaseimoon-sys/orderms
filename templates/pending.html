@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Pending — OrderPro{% endblock %}
+{% block page_title %}Pending Orders{% endblock %}
+{% block topbar_actions %}
+{% if orders %}
+<button class="btn btn-success-custom" onclick="sendAllPending(this)">
+  <i class="bi bi-whatsapp me-1"></i>Send All WhatsApp
+</button>
+{% endif %}
+{% endblock %}
+{% block content %}
+{% if orders %}
+<div class="alert d-flex align-items-center gap-2 mb-3" style="background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);color:var(--yellow);border-radius:12px">
+  <i class="bi bi-hourglass-split"></i>
+  <strong>{{ orders|length }}</strong> orders are waiting for WhatsApp confirmation
+</div>
+{% endif %}
+<div class="data-card">
+  <div class="data-card-header">
+    <h5><i class="bi bi-hourglass-split me-2" style="color:var(--yellow)"></i>Pending
+      <span class="badge ms-2" style="background:rgba(255,209,102,.12);color:var(--yellow);font-size:12px;border-radius:20px">{{ orders|length }}</span>
+    </h5>
+  </div>
+  {% if orders %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead><tr><th>ID</th><th>Customer</th><th>Phone</th><th>Product</th><th>Amount</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><code style="color:var(--yellow)">{{ o.OrderID }}</code></td>
+          <td><strong>{{ o.CustomerName }}</strong></td>
+          <td style="color:var(--muted);font-size:12px">{{ o.Phone }}</td>
+          <td>{{ o.Product }}</td>
+          <td style="font-weight:600">Rs {{ "{:,.0f}".format(o.Amount) }}</td>
+          <td style="color:var(--muted);font-size:12px">{{ o.Date }}</td>
+          <td>
+            <div class="d-flex gap-1 flex-wrap">
+              <button class="btn btn-success-custom btn-sm-custom" onclick="sendWhatsApp('{{ o.OrderID }}',this)"><i class="bi bi-whatsapp"></i> Send</button>
+              <form action="{{ url_for('update_status',order_id=o.OrderID) }}" method="POST">
+                <input type="hidden" name="status" value="Delivered">
+                <button type="submit" class="btn btn-primary-custom btn-sm-custom"><i class="bi bi-check-lg"></i> Delivered</button>
+              </form>
+              <form action="{{ url_for('delete_order',order_id=o.OrderID) }}" method="POST" onsubmit="return confirm('Delete?')">
+                <button type="submit" class="btn btn-danger-custom"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><span class="empty-icon">🎉</span><p>No pending orders! All caught up.</p></div>
+  {% endif %}
+</div>
+{% block scripts %}
+<script>
+async function sendAllPending(btn) {
+  if (!confirm('Send WhatsApp to ALL pending orders?')) return;
+  btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Sending...';
+  const r = await fetch('/send_bulk',{method:'POST'}); const d = await r.json();
+  const ok = d.results.filter(x=>x.success).length;
+  showToast(`${ok}/${d.results.length} messages sent!`);
+  btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Done!';
+  setTimeout(()=>location.reload(), 2000);
+}
+</script>
+{% endblock %}
+{% endblock %}
