@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Customers — OrderPro{% endblock %}
+{% block page_title %}Customers{% endblock %}
+{% block topbar_actions %}
+<form method="GET" class="d-flex gap-2">
+  <div class="search-wrap">
+    <i class="bi bi-search"></i>
+    <input type="text" name="search" class="form-control" placeholder="Search customers..." value="{{ search }}">
+  </div>
+  <button type="submit" class="btn btn-ghost btn-sm-custom"><i class="bi bi-search"></i></button>
+</form>
+{% endblock %}
+{% block content %}
+<div class="data-card">
+  <div class="data-card-header">
+    <h5><i class="bi bi-people me-2" style="color:var(--primary)"></i>Customers
+      <span class="badge ms-2" style="background:rgba(108,99,255,.15);color:var(--primary);font-size:12px;border-radius:20px">{{ customers|length }}</span>
+    </h5>
+  </div>
+  {% if customers %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead><tr><th>Customer</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Last Order</th></tr></thead>
+      <tbody>
+        {% for c in customers %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">{{ c.CustomerName[0]|upper }}</div>
+              <strong>{{ c.CustomerName }}</strong>
+            </div>
+          </td>
+          <td style="color:var(--muted)">{{ c.Phone }}</td>
+          <td><span class="badge" style="background:rgba(108,99,255,.12);color:var(--primary);border-radius:20px;padding:4px 10px">{{ c.total_orders }}</span></td>
+          <td style="color:var(--accent);font-weight:700">Rs {{ "{:,.0f}".format(c.total_spent) }}</td>
+          <td style="color:var(--muted)">{{ c.last_order }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><span class="empty-icon">👥</span><p>No customers yet.</p></div>
+  {% endif %}
+</div>
+{% endblock %}
