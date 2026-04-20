@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Orders — OrderPro{% endblock %}
+{% block page_title %}All Orders{% endblock %}
+
+{% block topbar_actions %}
+<form method="GET" class="d-flex gap-2 align-items-center">
+  <div class="search-wrap">
+    <i class="bi bi-search"></i>
+    <input type="text" name="search" class="form-control" placeholder="Search orders..." value="{{ search }}">
+  </div>
+  <select name="status" class="form-select" style="width:140px" onchange="this.form.submit()">
+    <option value="all"      {% if status_filter=='all'       %}selected{% endif %}>All Status</option>
+    <option value="pending"  {% if status_filter=='pending'   %}selected{% endif %}>Pending</option>
+    <option value="sent"     {% if status_filter=='sent'      %}selected{% endif %}>Sent</option>
+    <option value="delivered"{% if status_filter=='delivered' %}selected{% endif %}>Delivered</option>
+  </select>
+  <button type="submit" class="btn btn-ghost btn-sm-custom"><i class="bi bi-search"></i></button>
+</form>
+{% endblock %}
+
+{% block content %}
+<div class="data-card">
+  <div class="data-card-header">
+    <h5><i class="bi bi-box-seam me-2" style="color:var(--primary)"></i>Orders
+      <span class="badge ms-2" style="background:rgba(108,99,255,.15);color:var(--primary);font-size:12px;border-radius:20px">{{ orders|length }}</span>
+    </h5>
+  </div>
+  {% if orders %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr><th>ID</th><th>Customer</th><th>Phone</th><th>Product</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><code>{{ o.OrderID }}</code></td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0">{{ o.CustomerName[0]|upper }}</div>
+              <strong>{{ o.CustomerName }}</strong>
+            </div>
+          </td>
+          <td style="color:var(--muted);font-size:12px">{{ o.Phone }}</td>
+          <td>{{ o.Product }}</td>
+          <td style="font-weight:600">Rs {{ "{:,.0f}".format(o.Amount) }}</td>
+          <td>
+            <form action="{{ url_for('update_status',order_id=o.OrderID) }}" method="POST" style="display:inline">
+              <select name="status" class="form-select form-select-sm" style="width:110px;padding:4px 8px;font-size:11px" onchange="this.form.submit()">
+                <option {% if o.Status=='Pending'   %}selected{% endif %}>Pending</option>
+                <option {% if o.Status=='Sent'      %}selected{% endif %}>Sent</option>
+                <option {% if o.Status=='Delivered' %}selected{% endif %}>Delivered</option>
+              </select>
+            </form>
+          </td>
+          <td style="color:var(--muted);font-size:12px">{{ o.Date }}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-success-custom btn-sm-custom" onclick="sendWhatsApp('{{ o.OrderID }}',this)">
+                <i class="bi bi-whatsapp"></i>
+              </button>
+              <form action="{{ url_for('delete_order',order_id=o.OrderID) }}" method="POST" onsubmit="return confirm('Delete this order?')">
+                <button type="submit" class="btn btn-danger-custom"><i class="bi bi-trash"></i></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-icon">🔍</span>
+    <p>No orders found.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
