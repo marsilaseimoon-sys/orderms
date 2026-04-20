@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}OrderPro{% endblock %}</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary:#6c63ff; --primary-dark:#5a52e0;
+    --accent:#00e5a0; --yellow:#ffd166; --red:#ff6584;
+    --bg:#0d1117; --sidebar:#0d1117; --card:#161b22;
+    --card2:#1c2128; --border:#30363d; --border2:#21262d;
+    --text:#e6edf3; --muted:#8b949e; --sw:260px;
+  }
+  * { font-family: 'Plus Jakarta Sans', sans-serif; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); margin: 0; display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sw); background: var(--sidebar);
+    border-right: 1px solid var(--border2);
+    position: fixed; inset: 0 auto 0 0; z-index: 200;
+    display: flex; flex-direction: column;
+    transition: transform 0.3s ease;
+  }
+  .sidebar-brand {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border2);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .brand-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(108,99,255,0.4);
+  }
+  .brand-text h5 { font-weight: 800; font-size: 18px; margin: 0; color: var(--text); }
+  .brand-text span { font-size: 11px; color: var(--muted); }
+
+  .sidebar-section { padding: 16px 12px 6px; }
+  .section-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; padding: 0 8px; margin-bottom: 6px; }
+  .nav-item { list-style: none; margin-bottom: 2px; }
+  .nav-link {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px; border-radius: 10px;
+    color: var(--muted); font-size: 13.5px; font-weight: 500;
+    text-decoration: none; transition: all 0.18s;
+  }
+  .nav-link:hover { background: var(--card2); color: var(--text); }
+  .nav-link.active { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(108,99,255,0.35); }
+  .nav-link i { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto; font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 20px;
+    background: rgba(255,101,132,0.2); color: var(--red);
+  }
+  .nav-link.active .nav-badge { background: rgba(255,255,255,0.25); color: white; }
+
+  .sidebar-footer {
+    margin-top: auto; padding: 16px 20px;
+    border-top: 1px solid var(--border2);
+  }
+  .user-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px;
+    background: var(--card2); border: 1px solid var(--border2);
+    text-decoration: none;
+  }
+  .user-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .user-info .uname { font-size: 13px; font-weight: 600; color: var(--text); display: block; }
+  .user-info .urole { font-size: 11px; color: var(--muted); }
+
+  /* ── TOPBAR ── */
+  .main-content { margin-left: var(--sw); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar {
+    background: rgba(13,17,23,0.95); border-bottom: 1px solid var(--border2);
+    padding: 14px 28px; position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    backdrop-filter: blur(10px);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .page-title { font-size: 18px; font-weight: 700; color: var(--text); margin: 0; }
+  .topbar-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .content { padding: 28px; flex: 1; }
+
+  /* ── STATS ── */
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border2);
+    border-radius: 16px; padding: 22px 20px;
+    transition: all 0.2s; height: 100%;
+  }
+  .stat-card:hover { transform: translateY(-3px); border-color: var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .stat-icon { font-size: 28px; margin-bottom: 12px; }
+  .stat-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+  .stat-value { font-size: 28px; font-weight: 800; }
+
+  /* ── CARD ── */
+  .data-card { background: var(--card); border: 1px solid var(--border2); border-radius: 16px; overflow: hidden; margin-bottom: 22px; }
+  .data-card-header { padding: 18px 22px; border-bottom: 1px solid var(--border2); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .data-card-header h5 { font-size: 15px; font-weight: 700; margin: 0; }
+
+  /* ── TABLE ── */
+  .table { color: var(--text); margin: 0; }
+  .table th { background: var(--card2); color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 18px; border-color: var(--border2); white-space: nowrap; }
+  .table td { padding: 13px 18px; border-color: var(--border2); vertical-align: middle; font-size: 13.5px; }
+  .table tbody tr:hover td { background: var(--card2); }
+  .table tbody tr:last-child td { border-bottom: none; }
+
+  /* ── BADGES ── */
+  .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+  .status-pending  { background: rgba(255,209,102,.12); color: var(--yellow); }
+  .status-sent     { background: rgba(108,99,255,.12);  color: var(--primary); }
+  .status-delivered{ background: rgba(0,229,160,.12);   color: var(--accent); }
+
+  /* ── BUTTONS ── */
+  .btn-primary-custom { background: var(--primary); border: none; color: white; font-weight: 600; border-radius: 10px; padding: 9px 18px; font-size: 13px; transition: all 0.2s; }
+  .btn-primary-custom:hover { background: var(--primary-dark); transform: translateY(-1px); color: white; }
+  .btn-success-custom { background: var(--accent); border: none; color: #000; font-weight: 700; border-radius: 10px; padding: 9px 18px; font-size: 13px; transition: all 0.2s; }
+  .btn-success-custom:hover { background: #00c487; transform: translateY(-1px); color: #000; }
+  .btn-ghost { background: var(--card2); border: 1px solid var(--border2); color: var(--text); font-weight: 600; border-radius: 10px; padding: 9px 18px; font-size: 13px; transition: all 0.2s; }
+  .btn-ghost:hover { background: var(--border2); color: var(--text); }
+  .btn-danger-custom { background: rgba(255,101,132,.12); border: 1px solid rgba(255,101,132,.2); color: var(--red); font-weight: 600; border-radius: 8px; padding: 6px 12px; font-size: 12px; transition: all 0.2s; }
+  .btn-danger-custom:hover { background: rgba(255,101,132,.22); color: var(--red); }
+  .btn-sm-custom { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+
+  /* ── FORM ── */
+  .form-label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; }
+  .form-control, .form-select {
+    background: var(--card2) !important; border: 1px solid var(--border2) !important;
+    color: var(--text) !important; border-radius: 10px !important; padding: 10px 14px !important;
+    font-size: 13.5px; font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .form-control:focus, .form-select:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(108,99,255,0.15) !important; }
+  .form-control::placeholder { color: var(--muted) !important; }
+  .form-select option { background: var(--card2); color: var(--text); }
+
+  /* ── MODAL ── */
+  .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 20px; color: var(--text); }
+  .modal-header { border-color: var(--border2); padding: 22px 26px; }
+  .modal-title { font-weight: 800; font-size: 18px; }
+  .modal-body { padding: 22px 26px; }
+  .modal-footer { border-color: var(--border2); padding: 16px 26px; }
+  .btn-close { filter: invert(1); }
+
+  /* ── TOAST ── */
+  #toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
+  .custom-toast {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px 20px; margin-top: 8px;
+    font-size: 14px; color: var(--text); box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    display: flex; align-items: center; gap: 10px;
+    animation: toastIn 0.3s ease;
+    min-width: 280px;
+  }
+  @keyframes toastIn { from{transform:translateX(60px);opacity:0} to{transform:translateX(0);opacity:1} }
+  .toast-success { border-color: var(--accent); }
+  .toast-error   { border-color: var(--red); }
+
+  /* ── FLASH MESSAGES ── */
+  .flash-alert { background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.25); color: var(--accent); border-radius: 12px; }
+  .flash-info  { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.25); color: var(--primary); border-radius: 12px; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state .empty-icon { font-size: 52px; margin-bottom: 16px; display: block; }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-card { background: var(--card2); border: 1px solid var(--border2); border-radius: 12px; padding: 14px 18px; font-size: 13.5px; line-height: 1.7; color: var(--text); }
+  .insight-card strong { color: var(--primary); }
+
+  /* ── CHART BOXES ── */
+  .chart-box { background: var(--card); border: 1px solid var(--border2); border-radius: 14px; padding: 16px; }
+  .chart-box img { max-width: 100%; border-radius: 8px; }
+
+  /* ── SEARCH BAR ── */
+  .search-wrap { position: relative; }
+  .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
+  .search-wrap input { padding-left: 36px !important; width: 200px; }
+
+  /* ── MOBILE TOGGLE ── */
+  .sidebar-toggle { display: none; }
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.show { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .sidebar-toggle { display: flex; }
+  }
+
+  code { color: var(--primary); font-size: 12px; background: rgba(108,99,255,.1); padding: 2px 6px; border-radius: 5px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">📦</div>
+    <div class="brand-text">
+      <h5>Order<span style="color:var(--primary)">Pro</span></h5>
+      <span>Business Suite v3.0</span>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="section-label">Main</div>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint=='index' %}active{% endif %}">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url_for('orders') }}" class="nav-link {% if request.endpoint=='orders' %}active{% endif %}">
+          <i class="bi bi-box-seam"></i> All Orders
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url_for('customers') }}" class="nav-link {% if request.endpoint=='customers' %}active{% endif %}">
+          <i class="bi bi-people"></i> Customers
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url_for('reports') }}" class="nav-link {% if request.endpoint=='reports' %}active{% endif %}">
+          <i class="bi bi-graph-up-arrow"></i> Reports & AI
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="section-label">By Status</div>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a href="{{ url_for('pending') }}" class="nav-link {% if request.endpoint=='pending' %}active{% endif %}">
+          <i class="bi bi-hourglass-split"></i> Pending
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url_for('whatsapp') }}" class="nav-link {% if request.endpoint=='whatsapp' %}active{% endif %}">
+          <i class="bi bi-whatsapp"></i> WhatsApp
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ url_for('delivered') }}" class="nav-link {% if request.endpoint=='delivered' %}active{% endif %}">
+          <i class="bi bi-check-circle"></i> Delivered
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="section-label">System</div>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a href="{{ url_for('settings') }}" class="nav-link {% if request.endpoint=='settings' %}active{% endif %}">
+          <i class="bi bi-gear"></i> Settings
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <div class="d-flex align-items-center gap-2">
+        <div class="user-avatar">{{ session.get('name','U')[0] }}</div>
+        <div class="user-info">
+          <span class="uname">{{ session.get('name','User') }}</span>
+          <span class="urole">{{ session.get('role','') }}</span>
+        </div>
+      </div>
+      <a href="{{ url_for('logout') }}" class="btn btn-sm" style="background:rgba(255,101,132,.1);color:var(--red);border:none;border-radius:8px" title="Logout">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="btn sidebar-toggle btn-ghost btn-sm" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+      </button>
+      <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+    </div>
+    <div class="topbar-right">
+      {% block topbar_actions %}{% endblock %}
+      <button class="btn btn-ghost btn-sm-custom" onclick="showModal('importModal')">
+        <i class="bi bi-file-earmark-arrow-up me-1"></i>Import Excel
+      </button>
+      <button class="btn btn-primary-custom btn-sm-custom" onclick="showModal('addOrderModal')">
+        <i class="bi bi-plus-lg me-1"></i>New Order
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+        <div class="alert flash-{{ cat }} d-flex align-items-center gap-2 mb-3" role="alert">
+          <i class="bi bi-check-circle-fill"></i> {{ msg }}
+          <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<!-- ADD ORDER MODAL -->
+<div class="modal fade" id="addOrderModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-plus-circle me-2" style="color:var(--primary)"></i>New Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{{ url_for('add_order') }}" method="POST">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Customer Name</label>
+              <input type="text" name="name" class="form-control" required placeholder="Ali Khan">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Phone</label>
+              <input type="text" name="phone" class="form-control" required placeholder="03001234567">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Product</label>
+              <input type="text" name="product" class="form-control" required placeholder="Product name">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Amount (Rs)</label>
+              <div class="input-group">
+                <span class="input-group-text" style="background:var(--card2);border-color:var(--border2);color:var(--muted);border-radius:10px 0 0 10px">Rs</span>
+                <input type="number" name="amount" class="form-control" required placeholder="0.00" min="0" step="0.01" style="border-radius:0 10px 10px 0 !important">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary-custom"><i class="bi bi-check-lg me-1"></i>Save Order</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="modal fade" id="importModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-file-earmark-excel me-2" style="color:var(--accent)"></i>Import Excel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--muted);font-size:13px">Excel file mein yeh columns hone chahiye: <code>OrderID, CustomerName, Phone, Product, Amount, Status, Date</code></p>
+        <label class="form-label">Select Excel File (.xlsx)</label>
+        <input type="file" id="importFile" class="form-control" accept=".xlsx,.xls">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success-custom" onclick="importExcel()"><i class="bi bi-upload me-1"></i>Import</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function showModal(id) { new bootstrap.Modal(document.getElementById(id)).show(); }
+function hideModal(id) { bootstrap.Modal.getInstance(document.getElementById(id))?.hide(); }
+
+function showToast(msg, type='success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `custom-toast toast-${type}`;
+  t.innerHTML = (type==='success'?'<i class="bi bi-check-circle-fill" style="color:var(--accent)"></i>':'<i class="bi bi-x-circle-fill" style="color:var(--red)"></i>') + ` ${msg}`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+async function sendWhatsApp(id, btn) {
+  btn.disabled = true; btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+  try {
+    const r = await fetch(`/send/${id}`); const d = await r.json();
+    if (d.success) {
+      showToast('WhatsApp message sent!');
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Sent';
+      btn.className = 'btn btn-success-custom btn-sm-custom';
+    } else {
+      showToast(d.error, 'error');
+      btn.disabled = false; btn.innerHTML = '<i class="bi bi-whatsapp"></i> Send';
+    }
+  } catch(e) { showToast('Failed to send','error'); btn.disabled=false; btn.innerHTML='<i class="bi bi-whatsapp"></i> Send'; }
+}
+
+async function importExcel() {
+  const f = document.getElementById('importFile').files[0];
+  if (!f) { showToast('File select karo!','error'); return; }
+  const fd = new FormData(); fd.append('file', f);
+  const r = await fetch('/import_excel',{method:'POST',body:fd}); const d = await r.json();
+  if (d.success) { showToast(`${d.imported} orders imported!`); hideModal('importModal'); setTimeout(()=>location.reload(),1500); }
+  else showToast(d.error,'error');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('show');
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
