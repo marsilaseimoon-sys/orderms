@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Reports & AI — OrderPro{% endblock %}
+{% block page_title %}Reports & AI Insights{% endblock %}
+{% block content %}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon">📦</div><div class="stat-label">Total Orders</div><div class="stat-value" style="color:var(--primary)">{{ stats.total }}</div></div></div>
+  <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--yellow)">{{ stats.pending }}</div></div></div>
+  <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon">✅</div><div class="stat-label">Delivered</div><div class="stat-value" style="color:var(--accent)">{{ stats.delivered }}</div></div></div>
+  <div class="col-md-3 col-6"><div class="stat-card"><div class="stat-icon">💰</div><div class="stat-label">Revenue</div><div class="stat-value" style="color:var(--accent);font-size:20px">{{ stats.revenue }}</div></div></div>
+</div>
+
+<!-- AI Insights -->
+<div class="data-card mb-4">
+  <div class="data-card-header">
+    <h5><i class="bi bi-cpu me-2" style="color:var(--primary)"></i>AI Insights
+      <span class="badge ms-2" style="background:rgba(108,99,255,.1);color:var(--muted);font-size:11px;border-radius:20px;font-weight:400">Local AI — No API Key</span>
+    </h5>
+  </div>
+  <div class="p-3">
+    {% if insights %}
+    <div class="row g-2">
+      {% for i in insights %}
+      <div class="col-md-6"><div class="insight-card">{{ i|safe }}</div></div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><span class="empty-icon">🤖</span><p>Add orders to get AI insights!</p></div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Charts -->
+{% if charts %}
+<div class="row g-3 mb-4">
+  {% if charts.revenue %}
+  <div class="col-lg-8"><div class="chart-box"><img src="data:image/png;base64,{{ charts.revenue }}" alt="Revenue Trend" class="w-100"></div></div>
+  {% endif %}
+  {% if charts.status %}
+  <div class="col-lg-4"><div class="chart-box"><img src="data:image/png;base64,{{ charts.status }}" alt="Order Status" class="w-100"></div></div>
+  {% endif %}
+  {% if charts.products %}
+  <div class="col-lg-6"><div class="chart-box"><img src="data:image/png;base64,{{ charts.products }}" alt="Top Products" class="w-100"></div></div>
+  {% endif %}
+  {% if charts.customers %}
+  <div class="col-lg-6"><div class="chart-box"><img src="data:image/png;base64,{{ charts.customers }}" alt="Top Customers" class="w-100"></div></div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Monthly Summary -->
+<div class="data-card">
+  <div class="data-card-header"><h5><i class="bi bi-calendar3 me-2" style="color:var(--primary)"></i>Monthly Summary</h5></div>
+  {% if monthly %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead><tr><th>Month</th><th>Orders</th><th>Revenue</th></tr></thead>
+      <tbody>
+        {% for m in monthly %}
+        <tr>
+          <td><strong>{{ m.Month }}</strong></td>
+          <td><span class="badge" style="background:rgba(108,99,255,.12);color:var(--primary);border-radius:20px;padding:4px 12px">{{ m.orders }}</span></td>
+          <td style="color:var(--accent);font-weight:700">Rs {{ "{:,.0f}".format(m.revenue) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><span class="empty-icon">📊</span><p>No data yet.</p></div>
+  {% endif %}
+</div>
+{% endblock %}
