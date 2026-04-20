@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — OrderPro{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+  <div class="col-xl col-md-4 col-6">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-label">Total Orders</div>
+      <div class="stat-value" style="color:var(--primary)">{{ stats.total }}</div>
+    </div>
+  </div>
+  <div class="col-xl col-md-4 col-6">
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-label">Pending</div>
+      <div class="stat-value" style="color:var(--yellow)">{{ stats.pending }}</div>
+    </div>
+  </div>
+  <div class="col-xl col-md-4 col-6">
+    <div class="stat-card">
+      <div class="stat-icon">💬</div>
+      <div class="stat-label">Sent</div>
+      <div class="stat-value" style="color:var(--primary)">{{ stats.sent }}</div>
+    </div>
+  </div>
+  <div class="col-xl col-md-4 col-6">
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-label">Delivered</div>
+      <div class="stat-value" style="color:var(--accent)">{{ stats.delivered }}</div>
+    </div>
+  </div>
+  <div class="col-xl col-md-4 col-6">
+    <div class="stat-card">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Revenue</div>
+      <div class="stat-value" style="color:var(--accent);font-size:20px">{{ stats.revenue }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Orders -->
+<div class="data-card">
+  <div class="data-card-header">
+    <h5><i class="bi bi-clock-history me-2" style="color:var(--primary)"></i>Recent Orders</h5>
+    <a href="{{ url_for('orders') }}" class="btn btn-ghost btn-sm-custom">View All <i class="bi bi-arrow-right"></i></a>
+  </div>
+  {% if recent %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Order ID</th><th>Customer</th><th>Product</th>
+          <th>Amount</th><th>Status</th><th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in recent %}
+        <tr>
+          <td><code>{{ o.OrderID }}</code></td>
+          <td><strong>{{ o.CustomerName }}</strong></td>
+          <td>{{ o.Product }}</td>
+          <td>Rs {{ "{:,.0f}".format(o.Amount) }}</td>
+          <td><span class="status-badge status-{{ o.Status|lower }}">{{ o.Status }}</span></td>
+          <td style="color:var(--muted)">{{ o.Date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <span class="empty-icon">📭</span>
+    <p>No orders yet. Add your first order!</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="stat-card" style="cursor:pointer" onclick="location.href='{{ url_for('pending') }}'">
+      <div class="d-flex align-items-center gap-3">
+        <div style="font-size:32px">⏳</div>
+        <div>
+          <div class="stat-label">Pending Action</div>
+          <div style="font-size:22px;font-weight:800;color:var(--yellow)">{{ stats.pending }} Orders</div>
+          <small style="color:var(--muted)">Need WhatsApp confirmation</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card" style="cursor:pointer" onclick="location.href='{{ url_for('reports') }}'">
+      <div class="d-flex align-items-center gap-3">
+        <div style="font-size:32px">🤖</div>
+        <div>
+          <div class="stat-label">AI Insights</div>
+          <div style="font-size:22px;font-weight:800;color:var(--primary)">View Report</div>
+          <small style="color:var(--muted)">Charts & forecasts ready</small>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card" style="cursor:pointer" onclick="location.href='{{ url_for('whatsapp') }}'">
+      <div class="d-flex align-items-center gap-3">
+        <div style="font-size:32px">💬</div>
+        <div>
+          <div class="stat-label">WhatsApp</div>
+          <div style="font-size:22px;font-weight:800;color:var(--accent)">Send Messages</div>
+          <small style="color:var(--muted)">Bulk or individual send</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
